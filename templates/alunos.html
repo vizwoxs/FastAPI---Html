@@ -12,6 +12,7 @@
     <Table>
         <div class="container">
             <h1>Lista de Alunos</h1>
+            <a href="/cadastro", class="botao">Novo Aluno</a>
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -20,11 +21,19 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Gabriel</td>
-                    <td>10</td>
-                    <td>Aprovado</td>
-                </tr>
+                {% for aluno in lista_alunos %}
+                    <tr class="{% if aluno.nota >= 7 %}aprovado{% else %}reprovado{% endif %}">
+                        <td>{{ aluno.nome }}</td>
+                        <td>{{ aluno.nota }}</td>
+                        <td>
+                            {% if aluno.nota >= 7 %}
+                                aprovado
+                            {% else %}
+                                reprovado
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </div>
     </Table>

@@ -18,7 +18,9 @@ app.mount("/static", StaticFiles(directory="static"), name= "static")
 alunos = [
     {"nome":"Felipe","nota": 8.5},
     { "nome": "Laura","nota": 9.0},
-    {"nome":"Yasmin","nota":8.0}
+    {"nome":"Yasmin","nota":8.0},
+    {'nome': "Kazuki", "nota": 5.0}
+    
 ]
 
 
@@ -27,4 +29,10 @@ alunos = [
 def exibir_alunos(request: Request):
     return templates.TemplateResponse(
         "Alunos.html", {"request":request, "lista_alunos": alunos}
+    )
+
+@app.get("/cadastro", response_class=HTMLResponse)
+def cadastro_aluno(request: Request):
+    return templates.TemplateResponse(
+        "cadastro.html", {"request": request}
     )
