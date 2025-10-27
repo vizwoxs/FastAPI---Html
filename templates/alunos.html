@@ -4,39 +4,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Alunos</title>
-    <link rel="stylesheet" href="{{ request.url_for('static', path='style.css') }}">
+    <title>Sistema de Gestão de Alunos</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
-    <Table>
-        <div class="container">
-            <h1>Lista de Alunos</h1>
-            <a href="/cadastro", class="botao">Novo Aluno</a>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Nota</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for aluno in lista_alunos %}
-                    <tr class="{% if aluno.nota >= 7 %}aprovado{% else %}reprovado{% endif %}">
-                        <td>{{ aluno.nome }}</td>
-                        <td>{{ aluno.nota }}</td>
-                        <td>
-                            {% if aluno.nota >= 7 %}
-                                aprovado
+    <div class="background-animation">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="page-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="page-title">Sistema de Gestão Acadêmica</h1>
+                    <p class="page-subtitle">Gerenciamento de notas e desempenho dos alunos</p>
+                </div>
+            </div>
+            <a href="/cadastro" class="btn-primary" data-testid="novo-aluno-btn">
+                <i class="fas fa-plus"></i>
+                <span>Novo Aluno</span>
+            </a>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-total">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total de Alunos</p>
+                    <p class="stat-value" data-testid="total-alunos">{{ lista_alunos|length }}</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-approved">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Aprovados</p>
+                    <p class="stat-value" data-testid="total-aprovados">{{ lista_alunos|selectattr('nota', 'ge',
+                        7)|list|length }}</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-failed">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Reprovados</p>
+                    <p class="stat-value" data-testid="total-reprovados">{{ lista_alunos|selectattr('nota', 'lt',
+                        7)|list|length }}</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-average">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Média Geral</p>
+                    <p class="stat-value" data-testid="media-geral">
+                        {% if lista_alunos|length > 0 %}
+                        {{ "%.1f"|format((lista_alunos|sum(attribute='nota')) / lista_alunos|length) }}
+                        {% else %}
+                        0.0
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h2 class="table-title">
+                    <i class="fas fa-list"></i>
+                    Lista de Alunos
+                </h2>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar aluno..." onkeyup="searchTable()">
+                    </div>
+                </div>
+            </div>
+
+            {% if lista_alunos|length == 0 %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3>Nenhum aluno cadastrado</h3>
+                <p>Comece adicionando o primeiro aluno ao sistema</p>
+                <a href="/cadastro" class="btn-secondary">
+                    <i class="fas fa-plus"></i>
+                    Cadastrar Primeiro Aluno
+                </a>
+            </div>
+            {% else %}
+            <table id="alunosTable" data-testid="alunos-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> #</th>
+                        <th><i class="fas fa-user"></i> Nome do Aluno</th>
+                        <th><i class="fas fa-star"></i> Nota</th>
+                        <th><i class="fas fa-chart-bar"></i> Desempenho</th>
+                        <th><i class="fas fa-flag"></i> Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aluno in lista_alunos %}
+                    <tr class="table-row" data-testid="aluno-row">
+                        <td class="td-number">{{ loop.index }}</td>
+                        <td class="td-name" data-testid="aluno-nome">
+                            <div class="student-info">
+                                <div class="student-avatar">
+                                    {{ aluno.nome[0]|upper }}
+                                </div>
+                                <span>{{ aluno.nome }}</span>
+                            </div>
+                        </td>
+                        <td class="td-grade" data-testid="aluno-nota">
+                            <span class="grade-badge">{{ "%.1f"|format(aluno.nota) }}</span>
+                        </td>
+                        <td class="td-performance">
+                            <div class="progress-container">
+                                <div class="progress-bar"
+                                    style="width: {{ (aluno.nota / 10) * 100 }}%;
+                                         background: {% if aluno.nota >= 9 %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% elif aluno.nota >= 7 %}linear-gradient(135deg, #11998e 0%, #38ef7d 100%){% elif aluno.nota >= 5 %}linear-gradient(135deg, #f093fb 0%, #f5576c 100%){% else %}linear-gradient(135deg, #fa709a 0%, #fee140 100%){% endif %}">
+                                </div>
+                            </div>
+                            <span class="progress-text">{{ "%.0f"|format((aluno.nota / 10) * 100) }}%</span>
+                        </td>
+                        <td class="td-status" data-testid="aluno-status">
+                            {% if aluno.nota >= 9 %}
+                            <span class="status-badge status-excellent">
+                                <i class="fas fa-medal"></i>
+                                Excelente
+                            </span>
+                            {% elif aluno.nota >= 7 %}
+                            <span class="status-badge status-approved">
+                                <i class="fas fa-check-circle"></i>
+                                Aprovado
+                            </span>
+                            {% elif aluno.nota >= 5 %}
+                            <span class="status-badge status-recovery">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Recuperação
+                            </span>
                             {% else %}
-                                reprovado
+                            <span class="status-badge status-failed">
+                                <i class="fas fa-times-circle"></i>
+                                Reprovado
+                            </span>
                             {% endif %}
                         </td>
                     </tr>
-                {% endfor %}
-            </tbody>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
         </div>
-    </Table>
+    </div>
+
+    <footer class="page-footer">
+        <p><i class="fas fa-heart"></i> Sistema de Gestão Acadêmica - 2025</p>
+    </footer>
+
+    <script>
+        function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById('alunosTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td')[1];
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = '';
+                    } else {
+                        tr[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        // Add animation on load
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('.table-row');
+            rows.forEach((row, index) => {
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        });
+    </script>
 </body>
 
 </html>
