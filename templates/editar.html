@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Aluno</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+    
+    <div class="container">
+        <div class="back-button">
+            <a href="/" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+                <span>Voltar</span>
+            </a>
+        </div>
+
+        <div class="form-container">
+            <div class="form-header">
+                <div class="form-icon form-icon-edit">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <h1 class="form-title">Editar Aluno</h1>
+                <p class="form-subtitle">Atualize os dados do aluno no sistema</p>
+            </div>
+
+            <form method="post" action="/atualizar/{{ id }}" class="student-form" data-testid="editar-form">
+                <div class="form-group">
+                    <label for="nome" class="form-label">
+                        <i class="fas fa-user"></i>
+                        Nome Completo
+                    </label>
+                    <input 
+                        type="text" 
+                        id="nome" 
+                        name="nome" 
+                        class="form-input" 
+                        value="{{ aluno.nome }}"
+                        placeholder="Digite o nome completo do aluno"
+                        required
+                        minlength="3"
+                        data-testid="input-nome"
+                    >
+                    <span class="input-hint">Mínimo de 3 caracteres</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="nota" class="form-label">
+                        <i class="fas fa-star"></i>
+                        Nota Final
+                    </label>
+                    <input 
+                        type="number" 
+                        id="nota" 
+                        name="nota" 
+                        class="form-input" 
+                        value="{{ aluno.nota }}"
+                        placeholder="Digite a nota (0 a 10)"
+                        required
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        data-testid="input-nota"
+                    >
+                    <span class="input-hint">Nota entre 0.0 e 10.0</span>
+                </div>
+
+                <div class="nota-preview" id="notaPreview" style="display: none;">
+                    <div class="preview-content">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="previewText"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/" class="btn-cancel">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn-submit btn-submit-edit" data-testid="btn-atualizar">
+                        <i class="fas fa-save"></i>
+                        Atualizar Aluno
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <p><i class="fas fa-heart"></i> Sistema de Gestão Acadêmica - 2025</p>
+    </footer>
+
+    <script>
+        const notaInput = document.getElementById('nota');
+        const notaPreview = document.getElementById('notaPreview');
+        const previewText = document.getElementById('previewText');
+
+        // Show preview on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const nota = parseFloat(notaInput.value);
+            updatePreview(nota);
+        });
+
+        notaInput.addEventListener('input', function() {
+            const nota = parseFloat(this.value);
+            updatePreview(nota);
+        });
+
+        function updatePreview(nota) {
+            if (isNaN(nota) || nota < 0 || nota > 10) {
+                notaPreview.style.display = 'none';
+                return;
+            }
+
+            notaPreview.style.display = 'block';
+            
+            if (nota >= 9) {
+                notaPreview.className = 'nota-preview preview-excellent';
+                previewText.textContent = `Status: Excelente - Parabéns pelo desempenho excepcional!`;
+            } else if (nota >= 7) {
+                notaPreview.className = 'nota-preview preview-approved';
+                previewText.textContent = `Status: Aprovado - Aluno atingiu a média necessária!`;
+            } else if (nota >= 5) {
+                notaPreview.className = 'nota-preview preview-recovery';
+                previewText.textContent = `Status: Recuperação - Aluno precisará de recuperação.`;
+            } else {
+                notaPreview.className = 'nota-preview preview-failed';
+                previewText.textContent = `Status: Reprovado - Aluno não atingiu a média mínima.`;
+            }
+        }
+
+        // Form validation
+        document.querySelector('.student-form').addEventListener('submit', function(e) {
+            const nome = document.getElementById('nome').value.trim();
+            const nota = parseFloat(document.getElementById('nota').value);
+
+            if (nome.length < 3) {
+                e.preventDefault();
+                alert('O nome deve ter pelo menos 3 caracteres!');
+                return;
+            }
+
+            if (isNaN(nota) || nota < 0 || nota > 10) {
+                e.preventDefault();
+                alert('A nota deve estar entre 0 e 10!');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

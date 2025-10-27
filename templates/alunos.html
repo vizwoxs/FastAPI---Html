@@ -120,6 +120,7 @@
                         <th><i class="fas fa-star"></i> Nota</th>
                         <th><i class="fas fa-chart-bar"></i> Desempenho</th>
                         <th><i class="fas fa-flag"></i> Status</th>
+                        <th><i class="fas fa-cog"></i> Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -168,6 +169,16 @@
                                 Reprovado
                             </span>
                             {% endif %}
+                        </td>
+                        <td class="td-actions">
+                            <div class="action-buttons">
+                                <a href="/editar/{{ loop.index0 }}" class="btn-action btn-edit" data-testid="btn-editar" title="Editar aluno">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/deletar/{{ loop.index0 }}" class="btn-action btn-delete" data-testid="btn-deletar" title="Deletar aluno" onclick="return confirm('Tem certeza que deseja deletar o aluno {{ aluno.nome }}?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
