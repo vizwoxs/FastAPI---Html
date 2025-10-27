@@ -43,3 +43,25 @@ def salvar_aluno(nome: str = Form(...), nota: float = Form(...)):
     alunos.append({ "nome": nome, "nota": nota} )
     return RedirectResponse(url="/", status_code=303)
 
+@app.get("/editar/{id}", response_class=HTMLResponse)
+def editar_aluno(request: Request, id: int):
+    if 0 <= id < len(alunos):
+        aluno = alunos[id]
+        return templates.TemplateResponse(
+            "editar.html",
+            {"request": request, "id": id, "aluno": aluno}
+        )
+    return RedirectResponse(url="/", status_code=303)
+
+@app.post("/atualizar/{id}")
+def atualizar_aluno(id: int, nome: str = Form(...), nota: float = Form(...)):
+    if 0 <= id < len(alunos):
+        alunos[id]["nome"] = nome
+        alunos[id]["nota"] = nota
+    return RedirectResponse(url="/", status_code=303)
+
+@app.get("/deletar/{id}")
+def deletar_aluno(id: int):
+    if 0 <= id < len(alunos):
+        alunos.pop(id)
+    return RedirectResponse(url="/", status_code=303)
